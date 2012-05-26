@@ -1,0 +1,51 @@
+info it worked if it ends with ok
+verbose cli [ 'node', '/usr/local/bin/npm', 'install', 'knockoutmapping' ]
+info using npm@1.1.21
+info using node@v0.6.18
+verbose /usr/local/bin/node node symlink
+verbose config file /Users/dneigler/.npmrc
+verbose config file /usr/local/etc/npmrc
+verbose config file /usr/local/lib/node_modules/npm/npmrc
+verbose caching /Users/dneigler/Documents/Development/Node/Test5/package.json
+verbose loadDefaults resource-allocation-test-app@0.0.1
+verbose caching /Users/dneigler/Documents/Development/Node/Test5/node_modules/express/package.json
+verbose caching /Users/dneigler/Documents/Development/Node/Test5/node_modules/jade/package.json
+verbose caching /Users/dneigler/Documents/Development/Node/Test5/node_modules/knockout/package.json
+verbose caching /Users/dneigler/Documents/Development/Node/Test5/node_modules/mongo/package.json
+verbose caching /Users/dneigler/Documents/Development/Node/Test5/node_modules/mongodb/package.json
+verbose caching /Users/dneigler/Documents/Development/Node/Test5/node_modules/mongoose/package.json
+verbose from cache /Users/dneigler/Documents/Development/Node/Test5/package.json
+verbose readDependencies: using package.json deps
+verbose cache add [ 'knockoutmapping', null ]
+silly cache add: name, spec, args [ undefined, 'knockoutmapping', [ 'knockoutmapping', null ] ]
+verbose parsed url { pathname: 'knockoutmapping',
+verbose parsed url   path: 'knockoutmapping',
+verbose parsed url   href: 'knockoutmapping' }
+verbose addNamed [ 'knockoutmapping', '' ]
+verbose addNamed [ null, '' ]
+silly name, range, hasData [ 'knockoutmapping', '', false ]
+verbose raw, before any munging knockoutmapping
+verbose url resolving [ 'https://registry.npmjs.org/', './knockoutmapping' ]
+verbose url resolved https://registry.npmjs.org/knockoutmapping
+http GET https://registry.npmjs.org/knockoutmapping
+http 404 https://registry.npmjs.org/knockoutmapping
+silly get cb [ 404,
+silly get cb   { server: 'CouchDB/1.2.0 (Erlang OTP/R15B)',
+silly get cb     date: 'Thu, 24 May 2012 01:36:40 GMT',
+silly get cb     'content-type': 'application/json',
+silly get cb     'content-length': '52',
+silly get cb     'cache-control': 'must-revalidate' } ]
+ERR! 404 'knockoutmapping' is not in the npm registry.
+ERR! 404 You should bug the author to publish it
+ERR! 404 Note that you can also install from a
+ERR! 404 tarball, folder, or http url, or git url.
+ERR! 
+ERR! System Darwin 11.4.0
+ERR! command "node" "/usr/local/bin/npm" "install" "knockoutmapping"
+ERR! cwd /Users/dneigler/Documents/Development/Node/Test5
+ERR! node -v v0.6.18
+ERR! npm -v 1.1.21
+ERR! code E404
+ERR! message 404 Not Found: knockoutmapping
+ERR! errno {}
+verbose exit [ 1, true ]
