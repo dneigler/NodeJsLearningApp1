@@ -6,7 +6,7 @@
  * To change this template use File | Settings | File Templates.
  */
 var mongoose = require('mongoose');
-var io = require('socket.io');
+// var audit = require('./../controllers/audit-controller');
 
 var Schema = mongoose.Schema,
   ObjectId = Schema.ObjectId;
@@ -15,38 +15,13 @@ var UserSchema = new Schema({
   username:{ type:String, default:'' },
   firstname:{ type:String, default:'fn' }});
 
-var db = mongoose.connect("mongodb://localhost/node-mongo-examples");
+// var db = mongoose.connect("mongodb://localhost/node-mongo-examples");
 
 var UserObj = mongoose.model('users', UserSchema);
+
+// Clear users for now
 UserObj.remove({}, function () {
 });
-
-/*
- module.exports = {
- _db: null,
- init: function(){
- if (!module.exports._db){
- var path = 'mongodb://' + SERVER_NAME + '/' + DB_NAME;
- console.log('connecting to MONGO via ' + path);
- module.exports._db = mongoose.connect(path);
- }
- return module.exports._db;
- }
-
- }
- module.exports.init = function(app) {
-
- global.SERVER_NAME = 'localhost:27017';
- global.DB_NAME = 'glitterwood'; // obviously localized to my app - choose your own
- require('./../models/db').load();
- */
-
-/*
-
- var host = "localhost";
- var port = mongo.Connection.DEFAULT_PORT;
- var db = new mongo.Db('node-mongo-examples', new mongo.Server(host, port, {}), {});
- */
 
 exports.getUser = function (userId, res) {
   console.log('getUser called with userId ' + userId);
@@ -90,6 +65,7 @@ exports.getUsers = function (req, res) {
     // try wrapping it
     var wrapper = new Object();
     wrapper.Rows = docs;
+    // audit.insertAuditTrail("GET USERS", "user", "User");
 
     res.render('index', { title:'Resource Manager', author:'Dave Neigler', userslist:wrapper });
   });
@@ -100,7 +76,7 @@ mongoose.connection.on('open', function () {
 
 });
 
-
+// init data
 var seedUser = new UserObj();
 seedUser.username = "DefaultUser";
 seedUser.firstname = "FirstName";
