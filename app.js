@@ -6,7 +6,8 @@ var express = require('express')
   , routes = require('./routes')
   , mongo = require('mongodb')
   , repos = require('./repos')
-  , fs = require('fs');
+  , fs = require('fs')
+  ;
 var io1 = require('socket.io');
 
 var config_file = require('yaml-config');
@@ -37,6 +38,10 @@ repo_files.forEach(function (file) {
   console.log('requiring repo ' + repos_path + '/' + file);
   require(repos_path + '/' + file);
 });
+
+var audit = require('./lib/audit-utils');
+audit.setIo(io);
+audit.clearAudit();
 
 // Bootstrap controllers
 // every controller gets the same objects passed down - app, io, etc?

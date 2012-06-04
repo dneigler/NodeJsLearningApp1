@@ -12,14 +12,15 @@ ul(data-bind="foreach: Rows")
     li
         input(type='text', data-bind="value: username")
         span -
-        span(data-bind="text: firstname")
+        span(data-bind="text: firstname")  __
+        span(data-bind="text: _id")
 input(type='button', onclick='saveUsers();', value='Save Changes')
 
-ul(data-bind="foreach:AuditTrailObjects")
+ul(data-bind="foreach:AuditTrailObjects.Rows")
     li
-        span(data-bind="text: Action")
-        span by
-        span(data-bind="text: User")
+        span(data-bind="text: action")
+        span  by
+        span(data-bind="text: audituser")
 
 script(type='text/javascript')
     var socket = io.connect();
@@ -31,16 +32,32 @@ script(type='text/javascript')
         console.log(data);
         var atData = ko.mapping.fromJS(data);
         // update knockout array
-        vm.AuditTrailObjects.push(atData);
+        vm.AuditTrailObjects.Rows.push(atData);
+      });
+      socket.on('Users', function(data) {
+        console.log(data);
+        // for now just replace
+        vm.Rows(data.Rows);
+        /*var match = ko.utils.arrayFirst(vm.Rows(), function(item) {
+            return data._id === ko.utils.unwrapObservable(item._id);
+        });
+
+        if (!match) {
+          vm.Rows.push(data);
+        }*/
+
+      });
+      socket.on('NewUser', function(data) {
+        console.log('NewUser received: ');
+         console.log(data);
+         var obj = ko.mapping.fromJS(data);
+         vm.Rows.push(obj);
       });
     var vmData = !{JSON.stringify(userslist)};
+
     var vm = ko.mapping.fromJS(vmData);
 
-    var auditItem = new Object();
-    auditItem.Action = "ClientInit";
-    auditItem.User = "USERNAME";
-    vm.AuditTrailObjects = ko.observableArray([]);
-    vm.AuditTrailObjects.push(auditItem);
+    vm.AuditTrailObjects = ko.mapping.fromJS(!{JSON.stringify(auditTrail)});
 
     ko.applyBindings(vm);
 
@@ -55,15 +72,7 @@ script(type='text/javascript')
           dataType:'JSON',
           data: {workaround: JSON.stringify(jsonData)},
           success: function(response){
-            /*var auditItem = new Object();
-            auditItem.Action = "SaveUsers";
-            auditItem.User = "USERNAME";
-            console.log(response);*/
             // socket.emit('auditTrail', auditItem);
           }
         });
-        /*$.post("/saveUsers", jsonData, function(returnedData) {
-            // This callback is executed if the post was successful
-            alert(returnedData);
-        })*/
     }

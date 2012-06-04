@@ -6,7 +6,7 @@
  * To change this template use File | Settings | File Templates.
  */
 var mongoose = require('mongoose');
-// var audit = require('./../controllers/audit-controller');
+// var audit = require('../controllers/audit-controller');
 
 var Schema = mongoose.Schema,
   ObjectId = Schema.ObjectId;
@@ -23,12 +23,13 @@ var UserObj = mongoose.model('users', UserSchema);
 UserObj.remove({}, function () {
 });
 
-exports.getUser = function (userId, res) {
-  console.log('getUser called with userId ' + userId);
-  var query = UserObj.find({});
+exports.getUser = function (username, callback) {
+  console.log('getUser called with username: ' + username);
+  var query = UserObj.find({'username':username});
   query.exec(function (err, docs) {
     console.log('Sending back ' + docs[0]);
-    res(err, docs[0]);
+    if (callback)
+      callback(err, docs[0]);
 
   });
 };
@@ -56,18 +57,18 @@ exports.saveUsers = function (users, callback) {
   callback(null);
 };
 
-exports.getUsers = function (req, res) {
+exports.getUsers = function (callback) {
   console.log('repos.getUsers called');
   var query = UserObj.find({});
   query.exec(function (err, docs) {
+
     // not sure how to pass results to view model, prob redirect?
     console.log('Sending back: ' + docs);
     // try wrapping it
     var wrapper = new Object();
     wrapper.Rows = docs;
-    // audit.insertAuditTrail("GET USERS", "user", "User");
+    callback(wrapper);
 
-    res.render('index', { title:'Resource Manager', author:'Dave Neigler', userslist:wrapper });
   });
 };
 
