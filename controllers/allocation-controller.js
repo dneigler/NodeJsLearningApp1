@@ -9,6 +9,7 @@
 var routes = require('../routes'),
   repos = require('../repos'),
   audit = require('./../lib/audit-utils'),
+  csv = require('./../lib/csv-utils'),
   ioLocal;
 
 module.exports = function (app, io) {
@@ -74,6 +75,12 @@ module.exports = function (app, io) {
     //res.send(req.body);
     // let's save to database
     res.redirect('home');
+  });
+
+  app.get('/upload', function (req, res) {
+    csv.setIo(ioLocal);
+    csv.importCsv(__dirname+'/../ResourceAllocationSample.csv');
+    res.send("finished upload?");
   });
 
 
