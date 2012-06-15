@@ -18,6 +18,7 @@ var UserSchema = new Schema({
 // var db = mongoose.connect("mongodb://localhost/node-mongo-examples");
 
 var UserObj = mongoose.model('users', UserSchema);
+var AllocObj = mongoose.model('ResourceAllocation');// , ResourceAllocationSchema);
 
 // Clear users for now
 UserObj.remove({}, function () {
@@ -31,6 +32,19 @@ exports.getUser = function (username, callback) {
     if (callback)
       callback(err, docs[0]);
 
+  });
+};
+
+exports.getUserAllocs = function(user, callback) {
+  console.log('getUserAllocs');
+  var query = AllocObj.find({})
+    .populate('Employee'); //'username':user})
+  query.exec(function(err, docs) {
+    console.log('Sending back ');
+    var wrapper = new Object();
+    wrapper.Rows = docs;
+    if (callback)
+      callback(err, wrapper);
   });
 };
 

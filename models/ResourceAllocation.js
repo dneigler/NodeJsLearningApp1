@@ -6,6 +6,7 @@
  * To change this template use File | Settings | File Templates.
  */
 var ResourceAllocationSchema = new Schema({
+  Employee: { type: Schema.ObjectId, ref: 'users' },
   EmployeeID:{type:String, default:''},
   Name:{type:String, default:''},
   JobCode:{type:String, default:''},

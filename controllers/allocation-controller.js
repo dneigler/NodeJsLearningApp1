@@ -36,6 +36,23 @@ module.exports = function (app, io) {
     });
   });
 
+  /*app.param('useralloc', function(req,res,next,id) {
+    repos.getUserAllocs(id, function(err, allocs) {
+      if (err) return next(err);
+      if (!id) return next(new Error('failed to find userallocid'));
+      req.allocs = allocs;
+      next();
+    })
+  });*/
+
+  app.get('/allocs/:username', function (req, res) {
+    // so I'm guessing the reason this works is that we already populated req.user in the app.param('id') code above.
+    repos.getUserAllocs(req.user, function(err, allocs) {
+      res.render('allocs', { title: 'Allocations', author: 'Dave Neigler', allocs: allocs } );
+    });
+    // res.send('allocs ' + req.user.username);
+  });
+
   app.get('/user/:username/edit', function (req, res) {
     // repos.getUser(userId, callback
     // so I'm guessing the reason this works is that we already populated req.user in the app.param('id') code above.

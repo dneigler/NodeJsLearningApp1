@@ -1,0 +1,65 @@
+h1= title
+p Welcome to #{title}
+form(action='/signup',method='post')
+    label Enter your name:
+        input(name='username')
+    div(data-role='fieldcontain')
+        label(for='savename') Save
+        input(type='submit', name='savename', value='Submit Name')
+p Brought to you by  #{author}
+
+ul(data-bind="foreach: Rows")
+    li
+        span(data-bind="text: Month") /
+        span(data-bind="text: Name") /
+        a(data-bind="attr: {href: '/allocs/' + Name()}, text: Name")
+        input(type='text', data-bind="value: AllocationPercentage")
+        span -
+        span(data-bind="text: Project")  -
+        span(data-bind="text: _id")
+input(type='button', onclick='saveUsers();', value='Save Changes')
+
+script(type='text/javascript')
+    var socket = io.connect();
+      socket.on('news', function (data) {
+        console.log(data);
+        socket.emit('my other event', { my: 'data' });
+      });
+      socket.on('auditTrail', function(data) {
+        console.log(data);
+        var atData = ko.mapping.fromJS(data);
+        // update knockout array
+        vm.AuditTrailObjects.Rows.push(atData);
+      });
+      socket.on('Users', function(data) {
+        console.log(data);
+        // for now just replace
+        vm.Rows(data.Rows);
+
+      });
+      socket.on('NewUser', function(data) {
+        console.log('NewUser received: ');
+         console.log(data);
+         var obj = ko.mapping.fromJS(data);
+         vm.Rows.push(obj);
+      });
+    var vmData = !{JSON.stringify(allocs)};
+
+    var vm = ko.mapping.fromJS(vmData);
+
+    ko.applyBindings(vm);
+
+    function saveUsers() {
+
+        var jsonData = ko.toJS(vm);
+        // alert(jsonData);
+        // alert(JSON.stringify(jsonData));
+        $.ajax({
+          url: '/saveUsers',
+          type: 'POST',
+          dataType:'JSON',
+          data: {workaround: JSON.stringify(jsonData)},
+          success: function(response){
+          }
+        });
+    }
