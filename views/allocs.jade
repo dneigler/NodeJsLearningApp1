@@ -1,23 +1,36 @@
-h1= title
-p Welcome to #{title}
 form(action='/signup',method='post')
     label Enter your name:
         input(name='username')
     div(data-role='fieldcontain')
         label(for='savename') Save
         input(type='submit', name='savename', value='Submit Name')
-p Brought to you by  #{author}
 
-ul(data-bind="foreach: Rows")
-    li
-        span(data-bind="text: Month") /
-        span(data-bind="text: Name") /
+table
+  caption Resource Allocations Table
+  colgroup
+  colgroup(span='2', title='Title')
+  thead
+    tr
+      th(scope="col") Month
+      th(scope="col") Name
+      th(scope="col") Allocation Percentage
+      th(scope="col") Project
+      th(scope="col") _id
+      th(scope="col") Save
+  tfoot
+    tr
+      td END
+  tbody(data-bind="foreach: Rows")
+    tr
+      td(data-bind="text: new Date(Date.parse(Month())).format('mmm-yy')")
+      td
         a(data-bind="attr: {href: '/allocs/' + Name()}, text: Name")
+      td
         input(type='text', data-bind="value: AllocationPercentage")
-        span -
-        span(data-bind="text: Project")  -
-        span(data-bind="text: _id")
-input(type='button', onclick='saveUsers();', value='Save Changes')
+      td(data-bind="text:Project")
+      td(data-bind="text: _id")
+      td
+        input(type='button', onclick='saveUsers();', value='Save Changes')
 
 script(type='text/javascript')
     var socket = io.connect();
