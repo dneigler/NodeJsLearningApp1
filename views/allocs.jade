@@ -21,18 +21,62 @@ table
     tr
       td END
   tbody(data-bind="foreach: Rows")
-    tr
+    tr(class='AllocationRow')
       td(data-bind="text: new Date(Date.parse(Month())).format('mmm-yy')")
       td
         a(data-bind="attr: {href: '/allocs/' + Name()}, text: Name")
       td
         input(type='text', data-bind="value: AllocationPercentage")
       td(data-bind="text:Project")
-      td(data-bind="text: _id")
+      td(class="AllocationId", data-bind="text: _id")
       td
         input(type='button', onclick='saveUsers();', value='Save Changes')
 
 script(type='text/javascript')
+    // test
+    $(document).ready(function() {
+      // Handler for .ready() called.
+      var currRow = null;
+      var xTriggered = 0;
+      $('.AllocationRow').hover(
+        function() {
+          // console.log("hovering");
+          $(this).addClass("hover");
+          // track the row we are in
+          currRow = $(this);
+        },
+        function() {
+          $(this).removeClass("hover");
+          currRow = null;
+        });
+
+      var keyToAllocMappings = {48:0, 49: .25, 50: .50, 51: .75, 52: 1};
+      $(document).keydown(function(event) {
+        // 48=0, 49=1, 50=2, 51=3, 52=4
+        if (currRow == null) return;
+        if (event.which >= 48 && event.which <= 52) {
+          // adjust the allocation for this row
+           // event.preventDefault();
+           var idToGet = currRow.find('.AllocationId').text();
+           console.log(idToGet);
+           var itemToChange = ko.utils.arrayFirst(vm.Rows(), function(item) {
+              return item._id() == idToGet;
+              // return ko.utils.stringStartsWith(item.name().toLowerCase(), search);
+          });
+          if (itemToChange != null)
+            itemToChange.AllocationPercentage(keyToAllocMappings[event.which]);
+           // currRow.find('.AllocationId').val(keyToAllocMappings[event.which]);
+           
+         } else if (event.which == 27) { // escape
+          event.preventDefault();
+         }
+         xTriggered++;
+         var msg = 'Handler for .keydown() called ' + xTriggered + ' time(s).  ' + currRow;
+         console.log(currRow);
+         console.log(msg);
+        
+      });
+    });
     var socket = io.connect();
       socket.on('news', function (data) {
         console.log(data);

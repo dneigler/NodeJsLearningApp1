@@ -20,7 +20,7 @@ var UserSchema = new Schema({
 var UserObj = mongoose.model('users', UserSchema);
 var AllocObj = mongoose.model('ResourceAllocation');// , ResourceAllocationSchema);
 
-// Clear users for now
+// Clear users for now∆
 UserObj.remove({}, function () {
 });
 
@@ -36,11 +36,11 @@ exports.getUser = function (username, callback) {
 };
 
 exports.getUserAllocs = function(user, callback) {
-  console.log('getUserAllocs');
-  var query = AllocObj.find({})
+  console.log('getUserAllocs called for ' + user);
+  var query = AllocObj.find({'Name':user.username})
     .populate('Employee'); //'username':user})
   query.exec(function(err, docs) {
-    console.log('Sending back ');
+    console.log('Sending back ' + docs);
     var wrapper = new Object();
     wrapper.Rows = docs;
     if (callback)
