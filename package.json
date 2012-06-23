@@ -1,6 +1,15 @@
 {
     "name":"resource-allocation-test-app", "version":"0.0.1", "private":true, "dependencies":{
     "express":"2.5.8",
-    "jade":">= 0.0.1"
+    "jade":">= 0.26.1",
+    "csv":">=0.0.13",
+    "yaml-config":">=0.1.0",
+    "knockout":"",
+    "mongo":"",
+    "mongodb":"",
+    "mongoose":"",
+    "nodeunit":"",
+    "socket.io":"",
+    "ws":""
 }
 }

@@ -13,3 +13,4 @@ npm-debug.log
 *.gz
 .idea/
 pids
+.DS_Store
