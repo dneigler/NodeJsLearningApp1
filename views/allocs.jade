@@ -26,7 +26,7 @@ table
       td
         a(data-bind="attr: {href: '/allocs/' + Name()}, text: Name")
       td
-        input(type='text', data-bind="value: AllocationPercentage")
+        input(class="AllocationPercentageInput", type='text', data-bind="value: AllocationPercentage")
       td(data-bind="text:Project")
       td(class="AllocationId", data-bind="text: _id")
       td
@@ -56,18 +56,15 @@ script(type='text/javascript')
         if (currRow == null) return;
         if (event.which >= 48 && event.which <= 52) {
           // adjust the allocation for this row
-           // event.preventDefault();
-           var idToGet = currRow.find('.AllocationId').text();
-           console.log(idToGet);
-           var itemToChange = ko.utils.arrayFirst(vm.Rows(), function(item) {
-              return item._id() == idToGet;
-              // return ko.utils.stringStartsWith(item.name().toLowerCase(), search);
+          // event.preventDefault();
+          var idToGet = currRow.find('.AllocationId').text();
+          console.log(idToGet);
+          var itemToChange = ko.utils.arrayFirst(vm.Rows(), function(item) {
+            return item._id() == idToGet;
           });
           if (itemToChange != null)
             itemToChange.AllocationPercentage(keyToAllocMappings[event.which]);
-           // currRow.find('.AllocationId').val(keyToAllocMappings[event.which]);
-           
-         } else if (event.which == 27) { // escape
+         } else if (event.which == 27) { // escape key
           event.preventDefault();
          }
          xTriggered++;
@@ -76,6 +73,38 @@ script(type='text/javascript')
          console.log(msg);
         
       });
+      var s1 = {"val": 1 };
+      var s2 = {"val": .75, "nextval": s1};
+      var s3 = {"val":.50, "nextval": s2};
+      var s4 = {"val":.25, "nextval": s3};
+      var s5 = {"val":0, "nextval": s4};
+      s1.nextval = s5;
+      s1.prevval = s2;
+      s2.prevval = s3;
+      s3.prevval = s4;
+      s4.prevval = s5;
+      s5.prevval = s1;
+      var vals = [ s1, s2, s3, s4, s5 ];
+
+      $('.AllocationPercentageInput').keydown(function(event) {
+        console.log(event.which + " pressed on .AllocationPercentageInput");
+          event.preventDefault();
+
+          // cycle through values if possible
+          var currVal = ko.utils.arrayFirst(vals, function(item) {
+              return item.val == $(event.srcElement).val(); // $(this).val();
+          });
+          var idToGet = $(this).parent().parent().find('.AllocationId').text();
+          console.log(idToGet);
+          var itemToChange = ko.utils.arrayFirst(vm.Rows(), function(item) {
+            return item._id() == idToGet;
+          });
+          if (itemToChange != null && event.which != 40)
+            itemToChange.AllocationPercentage(currVal.nextval.val);
+          else // 40 is the down arrow which will use previous value
+            itemToChange.AllocationPercentage(currVal.prevval.val);
+          // console.log(currVal.nextval);
+        });
     });
     var socket = io.connect();
       socket.on('news', function (data) {
