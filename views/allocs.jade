@@ -5,6 +5,15 @@ form(action='/signup',method='post')
         label(for='savename') Save
         input(type='submit', name='savename', value='Submit Name')
 
+div Has Changes: 
+  span(data-bind="text: isDirty")
+
+div(style="float:right")
+  button(data-bind="enable: isDirty") Save Changes
+  ul(data-bind="foreach: dirtyItems")
+    li
+      span(data-bind="text: new Date(Date.parse(Month())).format('mmm-yy') + ' ' + AllocationPercentage()")
+
 table
   caption Resource Allocations Table
   colgroup
@@ -16,7 +25,6 @@ table
       th(scope="col") Allocation Percentage
       th(scope="col") Project
       th(scope="col") _id
-      th(scope="col") Save
   tfoot
     tr
       td END
@@ -29,8 +37,6 @@ table
         input(class="AllocationPercentageInput", type='text', data-bind="value: AllocationPercentage")
       td(data-bind="text:Project")
       td(class="AllocationId", data-bind="text: _id")
-      td
-        input(type='button', onclick='saveUsers();', value='Save Changes')
 
 script(type='text/javascript')
     // test
@@ -131,17 +137,72 @@ script(type='text/javascript')
       });
     var vmData = !{JSON.stringify(allocs)};
 
+
+    //not used in this example.  one time flag, that drops its subscriptions after the first change.
+    ko.basicDirtyFlag = function(root) {
+        var _isDirty = ko.observable(false);
+
+        var result = ko.dependentObservable(function() {
+            if (!_isDirty()) {
+                ko.toJS(root); //just for subscriptions
+            }
+
+            return _isDirty();
+        });
+
+        result.subscribe(function() {
+            if (!_isDirty()) {
+                _isDirty(true);
+            }
+        });
+
+        return result;
+    }
+
+    ko.dirtyFlag = function(root, isInitiallyDirty) {
+        var result = function() {},
+            _initialState = ko.observable(ko.toJSON(root)),
+            _isInitiallyDirty = ko.observable(isInitiallyDirty);
+
+        result.isDirty = ko.dependentObservable(function() {
+            return _isInitiallyDirty() || _initialState() !== ko.toJSON(root);
+        });
+
+        result.reset = function() {
+            _initialState(ko.toJSON(root));
+            _isInitiallyDirty(false);
+        };
+
+        return result;
+    };
+
+
+
     var vm = ko.mapping.fromJS(vmData);
+
+    ko.utils.arrayForEach(vm.Rows(), function(item) {
+      item.dirtyFlag = new ko.dirtyFlag(item);
+      });
+
+    vm.dirtyItems = ko.dependentObservable(function() {
+      return ko.utils.arrayFilter(this.Rows(), function(item) {
+          return item.dirtyFlag.isDirty();
+      });
+    }, vm);
+
+    vm.isDirty = ko.dependentObservable(function() {
+        return this.dirtyItems().length > 0;
+    }, vm);
 
     ko.applyBindings(vm);
 
-    function saveUsers() {
+    function saveAllocs() {
 
-        var jsonData = ko.toJS(vm);
+        var jsonData = ko.toJS(vm.dirtyItems);
         // alert(jsonData);
         // alert(JSON.stringify(jsonData));
         $.ajax({
-          url: '/saveUsers',
+          url: '/saveAllocs',
           type: 'POST',
           dataType:'JSON',
           data: {workaround: JSON.stringify(jsonData)},

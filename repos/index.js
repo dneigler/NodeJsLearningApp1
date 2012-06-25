@@ -48,6 +48,11 @@ exports.getUserAllocs = function(user, callback) {
   });
 };
 
+exports.saveUserAllocs = function(allocs, callback) {
+  console.log('saveUserAllocs called with allocs ' + allocs);
+  
+};
+
 exports.saveUsers = function (users, callback) {
   console.log('saveUsers called with users ' + users);
   users.Rows.forEach(function (u) {

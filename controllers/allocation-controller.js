@@ -78,6 +78,25 @@ module.exports = function (app, io) {
     });
   });
 
+  app.post('/saveAllocs', function (req, res) {
+    console.log("called saveAllocs with " + req.body);
+    var d = JSON.parse(req.body.workaround);
+    console.log('attempt to saveAllocs: ' + d);
+    repos.saveUserAllocs(d, function (err) {
+      if (err)
+        res.send("ERROR: " + err);
+      else {
+        // publish the update
+        if (ioLocal)
+          ioLocal.sockets.emit('Users', d);
+        // publish out the updated auditTrail to everyone
+        audit.insertAuditTrail("UpdateAllocs", getUser(req), "User", function () {
+          res.send(d);
+        });
+      }
+    });
+  });
+
   app.post('/signup', function (req, res) {
     repos.saveUser(req, res);
     repos.getUser(req.body.username, function (err, docs) {
