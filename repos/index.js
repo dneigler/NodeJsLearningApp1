@@ -19,6 +19,7 @@ var UserSchema = new Schema({
 
 var UserObj = mongoose.model('users', UserSchema);
 var AllocObj = mongoose.model('ResourceAllocation');// , ResourceAllocationSchema);
+var StatusObj = mongoose.model('ProjectStatus');
 
 // Clear users for now∆
 UserObj.remove({}, function () {
@@ -50,7 +51,49 @@ exports.getUserAllocs = function(user, callback) {
 
 exports.saveUserAllocs = function(allocs, callback) {
   console.log('saveUserAllocs called with allocs ' + allocs);
-  
+  allocs.forEach(function(a) {
+    // following isn't found
+    console.log('attempting to save ' + JSON.stringify(a));//  a.stringify());
+    // we can't save the _id prop
+    var id = a._id;
+    delete a._id;
+    AllocObj.update({_id:id}, { $set: a }, { upsert: true, safe: true }, function(err, data) {
+      if (err)
+        console.log('ERR: ' + err);
+      else
+        console.log('finished update: ' + data);
+      callback();//.apply(this, arguments);
+    });
+    
+  });
+  //callback();
+};
+
+exports.getProjectStatusItems = function(statusDate, callback) {
+  console.log('called getProjectStatusItems');
+  var query = StatusObj.find({'StatusDate':statusDate});
+  query.exec(function(err, docs) {
+    callback(err, docs);
+  });
+};
+
+exports.saveProjectStatusItems = function(statusItems, callback) {
+  console.log('saveProjectStatusItems called ' + statusItems.length);
+  statusItems.forEach(function(item) {
+    var query = StatusObj.find({'StatusDate':item.StatusDate, 'Note':item.Note});
+    query.exec(function(err, docs) {
+      //console.log('')
+      if (docs.length == 0) { // create
+        var obj = new StatusObj(item);
+        obj.save(item, function(err) {
+          if (err)
+            console.log('ERROR: ' + err);
+        })
+      }
+    });
+
+  });
+  callback();
 };
 
 exports.saveUsers = function (users, callback) {
@@ -98,7 +141,7 @@ mongoose.connection.on('open', function () {
 
 // init data
 var seedUser = new UserObj();
-seedUser.username = "DefaultUser";
+seedUser.username = "David Neigler";
 seedUser.firstname = "FirstName";
 seedUser.save(function (err) {
   if (err) {

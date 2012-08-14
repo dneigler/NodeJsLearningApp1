@@ -3,15 +3,94 @@
 	{
 		"selected_items":
 		[
+			[
+				"BusinessAlignm",
+				"BusinessAlignmentOverride"
+			],
+			[
+				"Dirty",
+				"dirtyItems"
+			],
+			[
+				"ALlocation",
+				"AllocationPercentageInput"
+			]
 		]
 	},
 	"buffers":
 	[
 		{
-			"file": "package.json",
+			"file": "views/allocs.jade",
 			"settings":
 			{
-				"buffer_size": 321,
+				"buffer_size": 10279,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"contents": "/**\n * Created with JetBrains WebStorm.\n * User: dneigler\n * Date: 6/1/12\n * Time: 10:16 PM\n * To change this template use File | Settings | File Templates.\n */\nvar config_file = require('yaml-config');\nvar fs = require('fs');\nexports = module.exports = config = config_file.readConfig('config/config.yaml');\n\nrequire('./../db-connect');\n\n// Bootstrap models\nvar models_path = __dirname + '/../models';\nvar model_files = fs.readdirSync(models_path);\nmodel_files.forEach(function (file) {\n  if (file == 'User.js')\n    User = require(models_path + '/' + file);\n  else\n    require(models_path + '/' + file);\n});\n\nvar audit = require('./../lib/audit-utils');\n\nmodule.exports = {\n  setUp:function (callback) {\n    console.log('setup test');\n    callback();\n  },\n  tearDown:function (callback) {\n    //mongoose.connection.close();\n    callback();\n  },\n\n  auditAll:function (test) {\n    // test.expect(3);\n\n    audit.clearAudit(function (err) {\n      console.log(\"ERR: \" + err);\n      audit.getAll(function (results) {\n\n        test.ok(results, \"results should be an object\");\n        test.ok(results.Rows, \"results.Rows should be an array\");\n        console.log(results);\n        test.ok(results.Rows.length == 0, \"results.Rows.length should be == 0\");\n        test.done();\n      });\n    });\n\n  },\n\n  // TODO: figure out this strange issue where the second unit test freezes (likely hangs on async call to getAll or something)\n  emptyAuditTrail:function (test) {\n    // test.expect(2);\n\n    //audit.insertAuditTrail(\"TESTACTION\", \"TESTAUDITUSER\", \"TESTTARGETOBJECT\", function (atErr) {\n    //console.log(\"ATERR: \" + atErr);\n    audit.clearAudit(function (err) {\n      console.log(\"ERR: \" + err);\n      test.ok(true, 'true');\n      console.log(\"test was ok\");\n      audit.insertAuditTrail(\"TESTACTION\", \"TESTAUDITUSER\", \"TESTTARGETOBJECT\", function (atErr) {\n        console.log('inserted');\n        audit.getAll(function (results) {\n          test.ok(results.Rows.length == 1, \"results.Rows.length should be == 0 but was \" + results.Rows.length);\n          test.done();\n\n        });\n      });\n    });\n    //});\n\n  }\n}\n",
+			"file": "test/allocation-controller-test.js",
+			"file_size": 2080,
+			"file_write_time": 1343607307000000,
+			"settings":
+			{
+				"buffer_size": 2112,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "public/javascripts/jquery-1.7.2.min.js",
+			"settings":
+			{
+				"buffer_size": 126816,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "public/javascripts/ProjectStatus-2012-07.js",
+			"settings":
+			{
+				"buffer_size": 2496193,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "controllers/status-controller.js",
+			"settings":
+			{
+				"buffer_size": 1691,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "views/statusimport.jade",
+			"settings":
+			{
+				"buffer_size": 252,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "views/status.jade",
+			"settings":
+			{
+				"buffer_size": 3510,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "models/ProjectStatus.js",
+			"settings":
+			{
+				"buffer_size": 970,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "repos/index.js",
+			"settings":
+			{
+				"buffer_size": 4778,
 				"line_ending": "Unix"
 			}
 		}
@@ -56,6 +135,24 @@
 	},
 	"file_history":
 	[
+		"/Users/dneigler/Documents/Development/Node/NodeJsLearningApp1/views/status.jade",
+		"/Users/dneigler/Documents/Development/Node/NodeJsLearningApp1/app.js",
+		"/Users/dneigler/Documents/Development/Node/NodeJsLearningApp1/tests.js",
+		"/Users/dneigler/Documents/Development/Node/NodeJsLearningApp1/controllers/allocation-controller.js",
+		"/Users/dneigler/Documents/Development/Node/NodeJsLearningApp1/controllers/status-controller.js",
+		"/Users/dneigler/Documents/Development/Node/NodeJsLearningApp1/repos/index.js",
+		"/Users/dneigler/Documents/Development/Node/NodeJsLearningApp1/node_modules/socket.io/lib/logger.js",
+		"/Users/dneigler/Documents/Development/Node/NodeJsLearningApp1/package.json",
+		"/Users/dneigler/Documents/Development/Node/NodeJsLearningApp1/node_modules/nodeunit/lib/nodeunit.js",
+		"/Users/dneigler/Documents/Development/Node/NodeJsLearningApp1/test/allocation-controller-test.js",
+		"/Users/dneigler/Documents/Development/Node/NodeJsLearningApp1/models/ResourceAllocation.js",
+		"/Users/dneigler/Documents/Development/Node/NodeJsLearningApp1/views/allocs.jade",
+		"/Users/dneigler/Documents/Development/Node/NodeJsLearningApp1/public/stylesheets/style.css",
+		"/Users/dneigler/Documents/Development/Node/NodeJsLearningApp1/views/layout.jade",
+		"/Users/dneigler/Documents/Development/Node/NodeJsLearningApp1/node_modules/nodeunit/README.md",
+		"/Users/dneigler/Documents/Development/Node/NodeJsLearningApp1/views/index.jade",
+		"/Users/dneigler/Documents/Development/Node/NodeJsLearningApp1/models/Audit.js",
+		"/Users/dneigler/Documents/Development/Node/NodeJsLearningApp1/models/User.js",
 		"/Users/dneigler/Documents/Development/Node/Test5/views/Log: allocs.jade",
 		"/Users/dneigler/Documents/Development/Node/Test5/db-connect.js",
 		"/Users/dneigler/Documents/Development/Node/Test5/app.js",
@@ -87,9 +184,24 @@
 	},
 	"find_state":
 	{
-		"case_sensitive": false,
+		"case_sensitive": true,
 		"find_history":
 		[
+			"\"stop before send\"",
+			"\"other\"",
+			"Patch \"B\"",
+			"}",
+			"node-mongo",
+			"module",
+			"runFiles",
+			";\n",
+			"querystring",
+			"getUserAllocs",
+			"tostring",
+			"JSON",
+			"defaultuser",
+			");}",
+			"nextVal",
 			"getUsers",
 			"repo.getUsers"
 		],
@@ -99,6 +211,12 @@
 		"regex": false,
 		"replace_history":
 		[
+			"stop before send",
+			"other",
+			"Patch B",
+			"},",
+			"currVal",
+			"nextVal"
 		],
 		"reverse": false,
 		"show_context": true,
@@ -109,33 +227,253 @@
 	"groups":
 	[
 		{
-			"selected": 0,
+			"selected": 6,
 			"sheets":
 			[
 				{
 					"buffer": 0,
-					"file": "package.json",
+					"file": "views/allocs.jade",
 					"settings":
 					{
-						"buffer_size": 321,
+						"buffer_size": 10279,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								148,
-								148
+								5794,
+								5794
 							]
 						],
 						"settings":
 						{
-							"syntax": "Packages/JavaScript/JSON.tmLanguage",
+							"syntax": "Packages/Jade/Syntaxes/Jade.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 2436.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "test/allocation-controller-test.js",
+					"settings":
+					{
+						"buffer_size": 2112,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								2076,
+								2076
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 232.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "public/javascripts/jquery-1.7.2.min.js",
+					"settings":
+					{
+						"buffer_size": 126816,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "public/javascripts/ProjectStatus-2012-07.js",
+					"settings":
+					{
+						"buffer_size": 2496193,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								2496192,
+								2496192
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 104516.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 4,
+					"file": "controllers/status-controller.js",
+					"settings":
+					{
+						"buffer_size": 1691,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1131,
+								1131
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 5,
+					"file": "views/statusimport.jade",
+					"settings":
+					{
+						"buffer_size": 252,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								252,
+								252
+							]
+						],
+						"settings":
+						{
+							"auto_name": "",
+							"syntax": "Packages/Jade/Syntaxes/Jade.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 6,
+					"file": "views/status.jade",
+					"settings":
+					{
+						"buffer_size": 3510,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1548,
+								1548
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Jade/Syntaxes/Jade.tmLanguage",
 							"tab_size": 4,
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
 						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 7,
+					"file": "models/ProjectStatus.js",
+					"settings":
+					{
+						"buffer_size": 970,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								268,
+								268
+							]
+						],
+						"settings":
+						{
+							"auto_name": "",
+							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 8,
+					"file": "repos/index.js",
+					"settings":
+					{
+						"buffer_size": 4778,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								2071,
+								2092
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 395.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
@@ -176,7 +514,7 @@
 	"menu_visible": true,
 	"replace":
 	{
-		"height": 0.0
+		"height": 64.0
 	},
 	"save_all_on_build": true,
 	"select_file":
@@ -199,6 +537,6 @@
 	"show_open_files": false,
 	"show_tabs": true,
 	"side_bar_visible": true,
-	"side_bar_width": 207.0,
+	"side_bar_width": 291.0,
 	"status_bar_visible": true
 }

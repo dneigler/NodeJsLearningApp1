@@ -9,7 +9,8 @@ div Has Changes:
   span(data-bind="text: isDirty")
 
 div(style="float:right")
-  button(data-bind="enable: isDirty") Save Changes
+  button(data-bind="enable: isDirty", onclick="saveAllocs();") Save Changes
+  button(data-bind="enable: isDirty", onclick="rollbackAllocs();") Rollback Changes
   ul(data-bind="foreach: dirtyItems")
     li
       span(data-bind="text: new Date(Date.parse(Month())).format('mmm-yy') + ' ' + AllocationPercentage()")
@@ -40,9 +41,10 @@ table
 
 script(type='text/javascript')
     // test
+    var currRow = null;
     $(document).ready(function() {
       // Handler for .ready() called.
-      var currRow = null;
+      
       var xTriggered = 0;
       $('.AllocationRow').hover(
         function() {
@@ -119,23 +121,24 @@ script(type='text/javascript')
       });
       socket.on('auditTrail', function(data) {
         console.log(data);
-        var atData = ko.mapping.fromJS(data);
+        // var atData = ko.mapping.fromJS(data);
         // update knockout array
-        vm.AuditTrailObjects.Rows.push(atData);
+        //vm.AuditTrailObjects.Rows.push(atData);
       });
       socket.on('Users', function(data) {
         console.log(data);
         // for now just replace
-        vm.Rows(data.Rows);
+        // vm.Rows(data.Rows);
 
       });
       socket.on('NewUser', function(data) {
         console.log('NewUser received: ');
          console.log(data);
-         var obj = ko.mapping.fromJS(data);
-         vm.Rows.push(obj);
+         // var obj = ko.mapping.fromJS(data);
+         // vm.Rows.push(obj);
       });
-    var vmData = !{JSON.stringify(allocs)};
+    
+    // var vmData = !{JSON.stringify(allocs)};
 
 
     //not used in this example.  one time flag, that drops its subscriptions after the first change.
@@ -178,35 +181,124 @@ script(type='text/javascript')
 
 
 
-    var vm = ko.mapping.fromJS(vmData);
+    var vm = ko.mapping.fromJS({});
+    getAllocs();
 
-    ko.utils.arrayForEach(vm.Rows(), function(item) {
-      item.dirtyFlag = new ko.dirtyFlag(item);
+    function getAllocs() {
+
+      $.ajax({
+        url: '/allocs/get/#{username}',
+        type: 'GET',
+        dataType:'JSON',
+        success: function(response){
+          console.log('get allocs');
+          var vm1 = ko.mapping.fromJS(response);
+          vm = vm1;
+
+          ko.utils.arrayForEach(vm.Rows(), function(item) {
+            item.dirtyFlag = new ko.dirtyFlag(item);
+          });
+
+          vm.dirtyItems = ko.dependentObservable(function() {
+            return ko.utils.arrayFilter(this.Rows(), function(item) {
+                return item.dirtyFlag.isDirty();
+            });
+          }, vm);
+
+          vm.isDirty = ko.dependentObservable(function() {
+              return this.dirtyItems().length > 0;
+          }, vm);
+
+          ko.applyBindings(vm);
+
+          var keyToAllocMappings = {48:0, 49: .25, 50: .50, 51: .75, 52: 1};
+          $(document).keydown(function(event) {
+            // 48=0, 49=1, 50=2, 51=3, 52=4
+            if (currRow === null) return;
+            if (event.which >= 48 && event.which <= 52) {
+              // adjust the allocation for this row
+              // event.preventDefault();
+              var idToGet = currRow.find('.AllocationId').text();
+              console.log(idToGet);
+              var itemToChange = ko.utils.arrayFirst(vm.Rows(), function(item) {
+                return item._id() == idToGet;
+              });
+              if (itemToChange != null)
+                itemToChange.AllocationPercentage(keyToAllocMappings[event.which]);
+             } else if (event.which == 27) { // escape key
+              event.preventDefault();
+             }
+             xTriggered++;
+             var msg = 'Handler for .keydown() called ' + xTriggered + ' time(s).  ' + currRow;
+             console.log(currRow);
+             console.log(msg);
+            
+          });
+          var s1 = {"val": 1 };
+          var s2 = {"val": .75, "nextval": s1};
+          var s3 = {"val":.50, "nextval": s2};
+          var s4 = {"val":.25, "nextval": s3};
+          var s5 = {"val":0, "nextval": s4};
+          s1.nextval = s5;
+          s1.prevval = s2;
+          s2.prevval = s3;
+          s3.prevval = s4;
+          s4.prevval = s5;
+          s5.prevval = s1;
+          var vals = [ s1, s2, s3, s4, s5 ];
+
+          $('.AllocationPercentageInput').keydown(function(event) {
+            console.log(event.which + " pressed on .AllocationPercentageInput");
+              event.preventDefault();
+
+              // cycle through values if possible
+              var currVal = ko.utils.arrayFirst(vals, function(item) {
+                  return item.val == $(event.srcElement).val(); // $(this).val();
+              });
+              var idToGet = $(this).parent().parent().find('.AllocationId').text();
+              console.log(idToGet);
+              var itemToChange = ko.utils.arrayFirst(vm.Rows(), function(item) {
+                return item._id() == idToGet;
+              });
+              if (itemToChange != null && event.which != 40)
+                itemToChange.AllocationPercentage(currVal.nextval.val);
+              else // 40 is the down arrow which will use previous value
+                itemToChange.AllocationPercentage(currVal.prevval.val);
+              // console.log(currVal.nextval);
+            });
+        },
+        error: function(err) {
+          alert('ERROR: ' + err);
+        }
       });
+    }
 
-    vm.dirtyItems = ko.dependentObservable(function() {
-      return ko.utils.arrayFilter(this.Rows(), function(item) {
-          return item.dirtyFlag.isDirty();
-      });
-    }, vm);
-
-    vm.isDirty = ko.dependentObservable(function() {
-        return this.dirtyItems().length > 0;
-    }, vm);
-
-    ko.applyBindings(vm);
+    function rollbackAllocs() {
+      // for now just reload the page to rollback
+      location.reload();
+    }
 
     function saveAllocs() {
 
         var jsonData = ko.toJS(vm.dirtyItems);
+        var data = {workaround: JSON.stringify(jsonData)};
         // alert(jsonData);
         // alert(JSON.stringify(jsonData));
         $.ajax({
           url: '/saveAllocs',
           type: 'POST',
           dataType:'JSON',
-          data: {workaround: JSON.stringify(jsonData)},
+          data: data,
           success: function(response){
+            console.log('saved successfully ' + response);
+            // getAllocs();
+            location.reload();
+            // vm.dirtyItems().splice(0, vm.dirtyItems().length);
+            // ko.applyBindings(vm);
+            // alert('saved successfully: ' + response);
+          },
+          error: function(err) {
+            alert('ERROR: ' + err);
           }
         });
     }

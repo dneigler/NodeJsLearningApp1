@@ -48,7 +48,7 @@ module.exports = function (app, io) {
   app.get('/allocs/:username', function (req, res) {
     // so I'm guessing the reason this works is that we already populated req.user in the app.param('id') code above.
     repos.getUserAllocs(req.user, function(err, allocs) {
-      res.render('allocs', { title: 'Allocations', author: 'Dave Neigler', allocs: allocs } );
+      res.render('allocs', { title: 'Allocations', username: req.user.username, author: 'Dave Neigler', allocs: allocs } );
     });
     // res.send('allocs ' + req.user.username);
   });
@@ -75,6 +75,14 @@ module.exports = function (app, io) {
           res.send(d);
         });
       }
+    });
+  });
+
+  app.get('/allocs/get/:username', function (req, res) {
+    repos.getUserAllocs(req.user, function(err, allocs) {
+      res.writeHead(200, {'Content-Type': 'application/json'});
+      res.end(JSON.stringify(allocs));
+      //res.render('allocs', { title: 'Allocations', author: 'Dave Neigler', allocs: allocs } );
     });
   });
 

@@ -1,0 +1,102 @@
+form(action='/statusupdate',method='post')
+    label Status Date:
+        input(name='statusdate')
+    div(data-role='fieldcontain')
+        label(for='savename') Save
+        input(type='submit', name='savename', value='Submit Name')
+    table
+    caption Resource Allocations Table
+    colgroup
+    colgroup(span='2', title='Title')
+    thead
+        tr
+            th(scope="col") Month
+            th(scope="col") Name
+            th(scope="col") Allocation Percentage
+            th(scope="col") Project
+            th(scope="col") _id
+    tfoot
+        tr
+            td END
+        tbody(data-bind="foreach: $(data)")
+            tr(class='AllocationRow')
+                td(data-bind="text: new Date(Date.parse(StatusDate())).format('mmm-yy')")
+                td
+                    a(data-bind="attr: {href: '/allocs/' + Name()}, text: Name")
+                td
+                    input(class="AllocationPercentageInput", type='text', data-bind="value: ProjectID")
+                td(data-bind="text:Project")
+                td(class="AllocationId", data-bind="text: Note")
+script(type="javascript")
+    $(document).ready(function() {
+    ko.basicDirtyFlag = function(root) {
+        var _isDirty = ko.observable(false);
+        var result = ko.dependentObservable(function() {
+            if (!_isDirty()) {
+                ko.toJS(root); //just for subscriptions
+            }
+            return _isDirty();
+        });
+        result.subscribe(function() {
+            if (!_isDirty()) {
+                _isDirty(true);
+            }
+        });
+        return result;
+    }
+        ko.dirtyFlag = function(root, isInitiallyDirty) {
+            var result = function() {},
+                _initialState = ko.observable(ko.toJSON(root)),
+                _isInitiallyDirty = ko.observable(isInitiallyDirty);
+            result.isDirty = ko.dependentObservable(function() {
+                return _isInitiallyDirty() || _initialState() !== ko.toJSON(root);
+            });
+            result.reset = function() {
+                _initialState(ko.toJSON(root));
+                _isInitiallyDirty(false);
+            };
+            return result;
+        };
+        var vm = ko.mapping.fromJS(vmData);
+        ko.utils.arrayForEach(vm.Rows(), function(item) {
+            item.dirtyFlag = new ko.dirtyFlag(item);
+        });
+        vm.dirtyItems = ko.dependentObservable(function() {
+            return ko.utils.arrayFilter(this.Rows(), function(item) {
+                return item.dirtyFlag.isDirty();
+            });
+        }, vm);
+        vm.isDirty = ko.dependentObservable(function() {
+            return this.dirtyItems().length > 0;
+        }, vm);
+        ko.applyBindings(vm);
+
+
+    });
+    function getStatusItems(statusDate) {
+
+      $.ajax({
+        url: '/status/get/' + statusDate,
+        type: 'GET',
+        dataType:'JSON',
+        success: function(response){
+          console.log('get allocs');
+          var vm1 = ko.mapping.fromJS(response);
+          vm = vm1;
+
+          ko.utils.arrayForEach(vm.Rows(), function(item) {
+            item.dirtyFlag = new ko.dirtyFlag(item);
+          });
+
+          vm.dirtyItems = ko.dependentObservable(function() {
+            return ko.utils.arrayFilter(this.Rows(), function(item) {
+                return item.dirtyFlag.isDirty();
+            });
+          }, vm);
+
+          vm.isDirty = ko.dependentObservable(function() {
+              return this.dirtyItems().length > 0;
+          }, vm);
+
+          ko.applyBindings(vm);
+    };
